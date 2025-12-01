@@ -1,282 +1,250 @@
-# EcoRueda API
+# EcoRueda API Server
 
-API REST para la plataforma de movilidad sostenible **EcoRueda**.
+RESTful API for EcoRueda sustainable mobility platform.
 
-## 📋 Descripción
+## Overview
 
-Servicio HTTP que proporciona endpoints para gestionar vehículos compartidos, viajes, autenticación de usuarios y pagos. Incluye documentación Swagger y autenticación JWT.
+Node.js/Express backend with 28 endpoints providing authentication, vehicle management, trip tracking, and payment processing. Includes Swagger documentation and JWT security.
 
-## 🛠️ Stack Tecnológico
+## Quick Start
 
-- **Node.js** + **Express.js** - Framework REST
-- **PostgreSQL** - Base de datos
-- **JWT** - Autenticación
-- **Swagger** - Documentación API
-- **Helmet** - Seguridad
-- **CORS** - Control de origen
-- **Morgan** - Logging
-- **Rate Limiting** - Protección contra abuso
-
-## 📦 Instalación
-
-### Prerrequisitos
-
-- Node.js 18+
-- npm o yarn
-- PostgreSQL (opcional, SQLite para desarrollo)
-
-### Pasos
-
-1. **Clonar el repositorio**
-```bash
-git clone https://github.com/DylanunGOD/Software-Design-Project.git
-cd Software-Design-Project/api-server
-```
-
-2. **Instalar dependencias**
+### Install Dependencies
 ```bash
 npm install
 ```
 
-3. **Configurar variables de entorno**
-```bash
-# Copiar archivo de ejemplo
-cp .env.example .env
-
-# Editar .env con tus configuraciones
-# DB_HOST=localhost
-# DB_NAME=ecorueda
-# etc...
+### Configure Environment
+Create `.env` file with:
+```env
+PORT=5001
+DATABASE_URL=postgresql://user:password@host:5432/database
+JWT_SECRET=your-secret-key
+JWT_ISSUER=ecorueda-api
+JWT_AUDIENCE=ecorueda-client
+CORS_ORIGIN=http://localhost:5173
 ```
 
-4. **Iniciar servidor de desarrollo**
+### Initialize Database
+```bash
+node scripts/setup-supabase.js
+```
+
+### Start Server
 ```bash
 npm run dev
 ```
 
-El servidor estará disponible en: `http://localhost:3000`
+API available at `http://localhost:5001`
 
-## 🚀 Uso
+## Documentation
 
-### Endpoints Principales
+Interactive Swagger UI: `http://localhost:5001/api-docs`
 
-#### Autenticación
-- `POST /api/v1/auth/register` - Registrar usuario
-- `POST /api/v1/auth/login` - Login
+## Technology Stack
 
-#### Vehículos
-- `GET /api/v1/vehicles` - Listar vehículos
-- `GET /api/v1/vehicles/:id` - Detalle del vehículo
-- `POST /api/v1/vehicles/:id/reserve` - Reservar vehículo
+- Express.js 4.21.2
+- PostgreSQL 8.10.0
+- jsonwebtoken 9.0.0
+- bcryptjs 2.4.3
+- Joi 17.10.0
+- Swagger UI Express 5.0.0
+- Helmet 7.0.0
+- CORS 2.8.5
 
-#### Viajes
-- `GET /api/v1/trips` - Historial de viajes
-- `POST /api/v1/trips` - Crear viaje
-- `GET /api/v1/trips/:id` - Detalle del viaje
+## Architecture
 
-#### Perfil
-- `GET /api/v1/profile` - Obtener perfil
-- `PUT /api/v1/profile` - Actualizar perfil
+```
+src/
+├── routes/         # API routes with Swagger docs
+├── controllers/    # Request handlers
+├── services/       # Business logic
+├── repositories/   # Data access layer
+├── middleware/     # Auth, error handling
+├── models/         # Validation schemas
+├── config/         # Configuration
+└── utils/          # Utilities
+```
 
-#### Pagos
-- `GET /api/v1/payments` - Listar métodos de pago
-- `POST /api/v1/payments` - Registrar tarjeta
+## Design Patterns
 
-### Documentación Swagger
+- Repository Pattern (data access abstraction)
+- Service Layer (business logic separation)
+- Factory Pattern (repository creation)
+- Singleton Pattern (database connection)
+- Controller Base (consistent responses)
 
-Acceder a: `http://localhost:3000/api/docs`
+## API Endpoints
 
-Aquí encontrarás:
-- Descripción de todos los endpoints
-- Esquemas de request/response
-- Ejemplos de uso
-- Testing interactivo
+### Authentication (3)
+- POST `/api/v1/auth/register` - User registration
+- POST `/api/v1/auth/login` - Login with JWT
+- POST `/api/v1/auth/change-password` - Update password
 
-## 🔐 Autenticación JWT
+### Vehicles (8)
+- GET `/api/v1/vehicles` - List available
+- POST `/api/v1/vehicles` - Create with geo validation
+- GET `/api/v1/vehicles/search` - Search by location
+- GET `/api/v1/vehicles/:id` - Get details
+- POST `/api/v1/vehicles/:id/reserve` - Reserve
+- POST `/api/v1/vehicles/:id/release` - Release
 
-### Obtener Token
+### Trips (7)
+- POST `/api/v1/trips/start` - Start trip
+- POST `/api/v1/trips/finish` - Finish with payment
+- GET `/api/v1/trips/history` - User history
+- GET `/api/v1/trips/stats` - User statistics
 
-1. Registrarse o hacer login
-2. Copiar el `token` de la respuesta
-3. Incluir en headers:
+### Profile (4)
+- GET `/api/v1/profile` - User profile
+- PUT `/api/v1/profile` - Update profile
+- POST `/api/v1/profile/wallet/recharge` - Add funds
+
+### Payments (6)
+- GET `/api/v1/payments` - List methods
+- POST `/api/v1/payments` - Add method
+- PUT `/api/v1/payments/:id/default` - Set default
+- DELETE `/api/v1/payments/:id` - Remove
+
+Total: 28 endpoints (25 protected with JWT)
+
+## Security Features
+
+- JWT authentication with issuer/audience validation
+- bcrypt password hashing (10 rounds)
+- SQL injection prevention (parameterized queries)
+- Helmet middleware for HTTP headers
+- CORS with credential support
+- Rate limiting (100 requests per 15 minutes)
+- Joi input validation
+
+## Database Schema
+
+### Tables
+- `users` - Accounts with balance
+- `vehicles` - Inventory with location
+- `trips` - Trip records with pricing
+- `payments` - Payment methods (tokenized)
+
+### Features
+- Foreign keys with CASCADE
+- Check constraints
+- Optimized indexes
+- Automatic updated_at triggers
+- View for user statistics
+
+## Scripts
+
+Located in `scripts/` directory:
+
+- `setup-supabase.js` - Initialize database schema
+- `seed-vehicles.js` - Insert 15 test vehicles
+- `add-vehicle.js` - CLI to add single vehicle
+- `verify-seed-data.js` - Validate data integrity
+- `test-seed-single.js` - Test single insertion
+
+### Example: Add Vehicle
+```bash
+node scripts/add-vehicle.js --company tier --type scooter --lat 9.9334 --lng -84.0834
+```
+
+## Geographic Validation
+
+Integrated Nominatim API for Costa Rica location detection:
+
+- Validates coordinates within bounds (lat: 8.0-11.3, lng: -86.0 to -82.5)
+- Auto-detects canton and distrito from GPS coordinates
+- Prevents duplicate vehicles at exact coordinates
+- Detected cantons: San Jose, Escazu, Heredia, Alajuela, Santa Ana, Cartago
+
+**Utility**: `src/utils/locationValidator.js`
+
+## Testing
 
 ```bash
-Authorization: Bearer <tu_token>
+# Test endpoints
+.\test-endpoints-fixed.ps1
+
+# Health check
+curl http://localhost:5001/health
 ```
 
-### Ejemplo con cURL
+## Environment Variables
 
-```bash
-# Login
-curl -X POST http://localhost:3000/api/v1/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email": "user@example.com",
-    "password": "password123"
-  }'
+Required:
+- `DATABASE_URL` - PostgreSQL connection string
+- `JWT_SECRET` - Secret key for token signing
+- `JWT_ISSUER` - Token issuer identifier
+- `JWT_AUDIENCE` - Token audience identifier
 
-# Usar el token
-curl http://localhost:3000/api/v1/vehicles \
-  -H "Authorization: Bearer eyJhbGc..."
+Optional:
+- `PORT` - Server port (default: 5001)
+- `NODE_ENV` - Environment (development/production)
+- `JWT_EXPIRE` - Token expiration (default: 24h)
+- `CORS_ORIGIN` - Allowed origin (default: http://localhost:5173)
+
+## Response Format
+
+All responses follow consistent structure:
+
+**Success**:
+```json
+{
+  "success": true,
+  "data": {...},
+  "timestamp": "2025-11-30T12:00:00.000Z"
+}
 ```
 
-## 📝 Estructura del Proyecto
-
-```
-api-server/
-├── src/
-│   ├── config/
-│   │   ├── env.js                 # Configuración de variables de entorno
-│   │   └── database.js            # Conexión a base de datos
-│   ├── controllers/               # Lógica de negocio (TODO)
-│   ├── models/                    # Modelos de datos (TODO)
-│   ├── routes/
-│   │   ├── auth.js               # Rutas de autenticación
-│   │   ├── vehicles.js           # Rutas de vehículos
-│   │   ├── trips.js              # Rutas de viajes
-│   │   ├── users.js              # Rutas de perfil
-│   │   └── payments.js           # Rutas de pagos
-│   ├── middleware/
-│   │   ├── auth.js               # Validación JWT
-│   │   └── errorHandler.js       # Manejo de errores
-│   ├── utils/
-│   │   └── swagger.js            # Configuración Swagger
-│   └── app.js                     # Aplicación Express
-├── index.js                        # Punto de entrada
-├── package.json
-├── .env                            # Variables de entorno (desarrollo)
-├── .env.example                    # Plantilla de variables
-└── .gitignore
+**Error**:
+```json
+{
+  "success": false,
+  "message": "Error description",
+  "timestamp": "2025-11-30T12:00:00.000Z"
+}
 ```
 
-## 🗄️ Base de Datos
-
-### Tablas Necesarias (TODO)
-
-```sql
--- Usuarios
-CREATE TABLE users (
-  id UUID PRIMARY KEY,
-  email VARCHAR(255) UNIQUE NOT NULL,
-  password VARCHAR(255) NOT NULL,
-  name VARCHAR(255) NOT NULL,
-  phone VARCHAR(20),
-  balance DECIMAL(10,2) DEFAULT 0,
-  created_at TIMESTAMP DEFAULT NOW()
-);
-
--- Vehículos
-CREATE TABLE vehicles (
-  id UUID PRIMARY KEY,
-  company VARCHAR(50) NOT NULL,
-  type VARCHAR(50) NOT NULL,
-  lat DECIMAL(10,8) NOT NULL,
-  lng DECIMAL(11,8) NOT NULL,
-  battery INTEGER,
-  price_per_min DECIMAL(10,2),
-  reserved BOOLEAN DEFAULT FALSE,
-  status VARCHAR(50) DEFAULT 'available'
-);
-
--- Viajes
-CREATE TABLE trips (
-  id UUID PRIMARY KEY,
-  user_id UUID REFERENCES users(id),
-  vehicle_id UUID REFERENCES vehicles(id),
-  type VARCHAR(100),
-  duration INTEGER,
-  distance DECIMAL(10,2),
-  price DECIMAL(10,2),
-  status VARCHAR(50) DEFAULT 'ongoing',
-  start_time TIMESTAMP,
-  end_time TIMESTAMP
-);
-
--- Métodos de Pago
-CREATE TABLE payments (
-  id UUID PRIMARY KEY,
-  user_id UUID REFERENCES users(id),
-  card_last4 VARCHAR(4),
-  card_brand VARCHAR(50),
-  expiry_month INTEGER,
-  expiry_year INTEGER,
-  is_default BOOLEAN DEFAULT FALSE
-);
+**Paginated**:
+```json
+{
+  "success": true,
+  "data": [...],
+  "pagination": {
+    "total": 100,
+    "pages": 10,
+    "page": 1,
+    "limit": 10
+  },
+  "timestamp": "2025-11-30T12:00:00.000Z"
+}
 ```
 
-## 🧪 Testing
+## Deployment
 
-### Testear endpoints localmente
+### Prerequisites
+- Node.js 18+
+- PostgreSQL database
+- Environment variables configured
 
-1. **Con Swagger UI**
-   - Ir a `http://localhost:3000/api/docs`
-   - Usar la interfaz interactiva
+### Production Checklist
+- Set `NODE_ENV=production`
+- Use strong `JWT_SECRET`
+- Configure HTTPS at load balancer
+- Set appropriate `CORS_ORIGIN`
+- Enable database backups
+- Configure application monitoring
+- Review rate limits per endpoint
 
-2. **Con Postman**
-   - Importar colección (próximamente)
-   - Configurar environment con URL base
+## Known Issues
 
-3. **Con cURL**
-```bash
-# Listar vehículos
-curl http://localhost:3000/api/v1/vehicles \
-  -H "Authorization: Bearer <token>"
-```
+1. No database transactions for multi-step operations (trip finalization)
+2. Role-based authorization not enforced (JWT contains role but no middleware)
+3. Global rate limiting only (consider per-endpoint limits)
 
-## 🚀 Despliegue en Azure
+## Contributing
 
-### Preparación
+This is an academic project. For issues or suggestions, please open a GitHub issue.
 
-1. **Crear App Service en Azure**
-```bash
-# Crear grupo de recursos
-az group create --name ecorueda-rg --location eastus
+## License
 
-# Crear App Service Plan
-az appservice plan create \
-  --name ecorueda-plan \
-  --resource-group ecorueda-rg \
-  --sku B1 \
-  --is-linux
-
-# Crear Web App
-az webapp create \
-  --resource-group ecorueda-rg \
-  --plan ecorueda-plan \
-  --name ecorueda-api \
-  --runtime "node|18"
-```
-
-2. **Configurar Base de Datos en Azure**
-   - Azure Database for PostgreSQL
-   - O conexión a BD existente
-
-3. **Deployment**
-```bash
-# Desde la rama producción
-git push azure main
-```
-
-## 📚 Nomenclatura de Commits
-
-```
-feat:  Nueva funcionalidad
-fix:   Corrección de bugs
-docs:  Documentación
-refactor: Cambios en estructura
-test:  Tests
-chore: Tareas de configuración
-
-Ejemplos:
-- feat: agregar endpoint GET /vehicles
-- fix: validar token JWT correctamente
-- docs: actualizar Swagger
-```
-
-## 📧 Contacto
-
-Dylan - dylan@ecorueda.com
-
-## 📄 Licencia
-
-MIT
+Academic use only.
