@@ -76,26 +76,46 @@ export const vehicleSchemas = {
   create: Joi.object({
     company: Joi.string()
       .valid('tier', 'lime', 'bird')
-      .required(),
+      .required()
+      .messages({
+        'any.only': 'company debe ser tier, lime o bird',
+        'any.required': 'company es requerido'
+      }),
     type: Joi.string()
       .valid('scooter', 'bike')
-      .required(),
+      .required()
+      .messages({
+        'any.only': 'type debe ser scooter o bike',
+        'any.required': 'type es requerido'
+      }),
     lat: Joi.number()
-      .required(),
+      .required()
+      .messages({
+        'number.base': 'lat debe ser un número',
+        'any.required': 'lat (latitud) es requerido'
+      }),
     lng: Joi.number()
-      .required(),
+      .required()
+      .messages({
+        'number.base': 'lng debe ser un número',
+        'any.required': 'lng (longitud) es requerido'
+      }),
     battery: Joi.number()
       .integer()
       .min(0)
       .max(100)
-      .required(),
+      .default(100)
+      .messages({
+        'number.min': 'battery debe ser entre 0 y 100',
+        'number.max': 'battery debe ser entre 0 y 100'
+      }),
     price_per_min: Joi.number()
       .positive()
-      .required(),
-    canton: Joi.string()
-      .required(),
-    distrito: Joi.string()
-      .required(),
+      .required()
+      .messages({
+        'number.positive': 'price_per_min debe ser mayor a 0',
+        'any.required': 'price_per_min es requerido'
+      })
   }).options({ stripUnknown: true }),
 
   update: Joi.object({
