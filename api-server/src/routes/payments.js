@@ -67,23 +67,23 @@ router.get('/default', authenticate, PaymentController.getDefaultMethod.bind(Pay
  *           schema:
  *             type: object
  *             properties:
- *               card_number_last4:
- *                 type: string
- *                 description: Últimos 4 dígitos de la tarjeta
- *               card_brand:
- *                 type: string
- *                 enum: [visa, mastercard, amex, discover]
- *               expiry_month:
- *                 type: integer
- *                 minimum: 1
- *                 maximum: 12
- *               expiry_year:
- *                 type: integer
+	*               card_last4:
+	*                 type: string
+	*                 description: Últimos 4 dígitos de la tarjeta
+	*                 example: "8483"
+	*               provider:
+	*                 type: string
+	*                 description: Marca/proveedor del método de pago
+	*                 enum: [visa, mastercard, amex, discover, paypal]
+	*                 example: "visa"
+	*               method_type:
+	*                 type: string
+	*                 description: Tipo de método de pago
+	*                 enum: [card, wallet, bank]
+	*                 example: "card"
  *             required:
- *               - card_number_last4
- *               - card_brand
- *               - expiry_month
- *               - expiry_year
+	*               - card_last4
+	*               - provider
  *     responses:
  *       201:
  *         description: Método de pago agregado
